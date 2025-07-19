@@ -45,3 +45,15 @@ canvas {
     background-color: #ffffff;
     cursor: crosshair;
 }
+
+.controls button.active {
+    background-color: #d0d0d0;
+    border-color: #888;
+}
+
+#brushPreview {
+    display: inline-block;
+    background-color: #000000;
+    border-radius: 50%; /* This makes it a circle */
+    transition: width 0.1s, height 0.1s; /* Smooth transition */
+}
