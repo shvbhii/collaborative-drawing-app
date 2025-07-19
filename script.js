@@ -1,6 +1,7 @@
 
 const urlParams = new URLSearchParams(window.location.search);
 const roomName = urlParams.get('room');
+const userName = urlParams.get('name') || 'Anonymous'; 
 
 if (!roomName) {
     window.location.href = '/index.html';
@@ -8,7 +9,7 @@ if (!roomName) {
 
 const socket = io();
 socket.on('connect', () => {
-    socket.emit('join-room', roomName);
+    socket.emit('join-room', { room: roomName, name: userName });
 });
 
 
@@ -36,24 +37,16 @@ let history = [];
 let historyIndex = -1;
 
 
-
-
 const LOGICAL_WIDTH = 1920;
 const LOGICAL_HEIGHT = 1080;
-
-
 canvas.width = LOGICAL_WIDTH;
 canvas.height = LOGICAL_HEIGHT;
-
-
 
 function getCoordinates(event) {
     const rect = canvas.getBoundingClientRect();
     const scaleX = canvas.width / rect.width;
     const scaleY = canvas.height / rect.height;
-    
     let clientX, clientY;
-
     if (event.touches && event.touches.length > 0) {
         clientX = event.touches[0].clientX;
         clientY = event.touches[0].clientY;
@@ -61,13 +54,8 @@ function getCoordinates(event) {
         clientX = event.clientX;
         clientY = event.clientY;
     }
-
-    return {
-        x: (clientX - rect.left) * scaleX,
-        y: (clientY - rect.top) * scaleY
-    };
+    return { x: (clientX - rect.left) * scaleX, y: (clientY - rect.top) * scaleY };
 }
-
 
 function startDrawing(event) {
     isDrawing = true;
@@ -79,14 +67,11 @@ function startDrawing(event) {
 function handleDrawing(event) {
     event.preventDefault();
     if (!isDrawing) return;
-    
     const coords = getCoordinates(event);
     const drawColor = isErasing ? '#FFFFFF' : colorPicker.value;
     const data = { lastX, lastY, newX: coords.x, newY: coords.y, color: drawColor, size: brushSize.value };
-    
     drawOnCanvas(data);
     socket.emit('drawing', data);
-    
     lastX = coords.x;
     lastY = coords.y;
 }
@@ -128,10 +113,8 @@ function updateUndoRedoButtons() {
 
 canvas.addEventListener('mousedown', startDrawing);
 canvas.addEventListener('touchstart', startDrawing);
-
 canvas.addEventListener('mousemove', handleDrawing);
 canvas.addEventListener('touchmove', handleDrawing);
-
 canvas.addEventListener('mouseup', stopDrawing);
 canvas.addEventListener('touchend', stopDrawing);
 canvas.addEventListener('mouseout', stopDrawing);
@@ -150,7 +133,6 @@ colorPicker.addEventListener('click', () => {
 });
 colorPicker.addEventListener('input', updateBrushPreview);
 brushSize.addEventListener('input', updateBrushPreview);
-
 undoButton.addEventListener('click', () => {
     if (historyIndex > 0) {
         historyIndex--;
@@ -165,7 +147,6 @@ redoButton.addEventListener('click', () => {
         updateUndoRedoButtons();
     }
 });
-
 clearButton.addEventListener('click', () => {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     saveState();
@@ -205,11 +186,7 @@ socket.on('clear', () => {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     saveState();
 });
-
-socket.on('cursor-move', (data) => {
-    
-});
-
+socket.on('cursor-move', (data) => {});
 socket.on('user-disconnected', (id) => {
     if (userCursors[id]) {
         userCursors[id].remove();
@@ -223,7 +200,7 @@ socket.on('update-user-list', (users) => {
     users.forEach(user => {
         const li = document.createElement('li');
         const selfLabel = user.id === socket.id ? ' (You)' : '';
-        li.textContent = `User ${user.id.substring(0, 4)}${selfLabel}`;
+        li.textContent = `${user.name}${selfLabel}`; 
         if (selfLabel) li.style.fontWeight = 'bold';
         userList.appendChild(li);
     });

@@ -25,8 +25,18 @@ body {
 
 .drawing-area h1 {
     margin-top: 0;
+    margin-bottom: 0;
     font-weight: 600;
     color: #2c3e50;
+}
+
+
+#watermark {
+    font-size: 14px;
+    color: #7f8c8d;
+    margin-top: -5px;
+    margin-bottom: 15px;
+    font-weight: 400;
 }
 
 
@@ -140,7 +150,6 @@ input[type="color"] {
     border-radius: 12px;
     overflow: hidden;
     box-shadow: 0 6px 20px rgba(0,0,0,0.1);
-   
     width: 100%; 
     max-width: 1280px;
 }
@@ -149,10 +158,8 @@ canvas {
     display: block;
     background-color: #ffffff;
     cursor: crosshair;
-   
     width: 100%;
     height: auto;
-   
     image-rendering: -moz-crisp-edges;
     image-rendering: -webkit-crisp-edges;
     image-rendering: pixelated;
@@ -210,14 +217,4 @@ canvas {
 }
 #user-list li:last-child {
     border-bottom: none;
-}
-
-
-#watermark {
-    position: fixed;
-    bottom: 10px;
-    right: 15px;
-    font-size: 12px;
-    color: #999;
-    font-family: 'Poppins', sans-serif;
 }

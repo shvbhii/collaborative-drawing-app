@@ -12,18 +12,21 @@ app.use(express.static(__dirname));
 
 io.on('connection', (socket) => {
     
-    socket.on('join-room', (roomName) => {
-        socket.join(roomName);
-        socket.room = roomName;
+    socket.on('join-room', (data) => {
+        const { room, name } = data;
+        
+        socket.join(room);
+        socket.room = room;
+        socket.name = name; 
 
-        if (!activeRooms[roomName]) {
-            activeRooms[roomName] = {};
+        if (!activeRooms[room]) {
+            activeRooms[room] = {};
         }
 
-        activeRooms[roomName][socket.id] = { id: socket.id };
-        console.log(`User ${socket.id} joined room ${roomName}`);
+        activeRooms[room][socket.id] = { id: socket.id, name: name }; 
+        console.log(`User '${name}' (${socket.id}) joined room '${room}'`);
         
-        io.to(roomName).emit('update-user-list', Object.values(activeRooms[roomName]));
+        io.to(room).emit('update-user-list', Object.values(activeRooms[room]));
     });
 
     socket.on('drawing', (data) => {
@@ -47,7 +50,7 @@ io.on('connection', (socket) => {
     socket.on('disconnect', () => {
         const roomName = socket.room;
         if (roomName && activeRooms[roomName]) {
-            console.log(`User ${socket.id} disconnected from room ${roomName}`);
+            console.log(`User '${socket.name}' (${socket.id}) disconnected from room '${roomName}'`);
             delete activeRooms[roomName][socket.id];
             
             if (Object.keys(activeRooms[roomName]).length === 0) {
