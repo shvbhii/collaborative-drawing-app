@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-Time Collaborative Drawing Board</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Collaborative Drawing Board</h1>
+    
+    <div class="controls">
+        <label for="colorPicker">Color:</label>
+        <input type="color" id="colorPicker" value="#000000">
+        
+        <label for="brushSize">Brush Size:</label>
+        <input type="range" id="brushSize" min="1" max="50" value="5">
+        
+        <button id="clearButton">Clear Canvas</button>
+    </div>
+
+    <canvas id="drawing-board"></canvas>
+
+    <!-- This script is required for the client to connect to the Socket.IO server -->
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
