@@ -7,24 +7,34 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>Collaborative Drawing Board</h1>
-    
-    <div class="controls">
-        <label for="colorPicker">Color:</label>
-        <input type="color" id="colorPicker" value="#000000">
-        
-        <label for="brushSize">Brush Size:</label>
-        <input type="range" id="brushSize" min="1" max="50" value="5">
-        <span id="brushPreview"></span> 
+    <div id="main-content">
+        <div class="drawing-area">
+            <h1>Collaborative Drawing Board</h1>
+            <div class="controls">
+                <label for="colorPicker">Color:</label>
+                <input type="color" id="colorPicker" value="#000000">
+                
+                <label for="brushSize">Brush Size:</label>
+                <input type="range" id="brushSize" min="1" max="50" value="5">
+                <span id="brushPreview"></span> 
 
-        <button id="eraserButton">Eraser</button>
-        <button id="clearButton">Clear Canvas</button>
-        <button id="saveButton">Save</button>
+                <button id="eraserButton">Eraser</button>
+                <button id="clearButton">Clear Canvas</button>
+                <button id="saveButton">Save</button>
+            </div>
+            <div id="canvas-container">
+                <canvas id="drawing-board"></canvas>
+                <div id="cursors-container"></div>
+            </div>
+        </div>
+
+        <div id="sidebar">
+            <h2>Active Users (<span id="user-count">0</span>)</h2>
+            <ul id="user-list"></ul>
+        </div>
     </div>
 
-    <canvas id="drawing-board"></canvas>
-
-    <!-- This script is required for the client to connect to the Socket.IO server -->
+    <!-- Scripts at the bottom, as before -->
     <script src="/socket.io/socket.io.js"></script>
     <script src="script.js"></script>
 </body>
