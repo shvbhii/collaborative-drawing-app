@@ -11,7 +11,9 @@
 
 A real-time, multi-user, and fully responsive drawing application. This project allows multiple users to join distinct rooms and draw together simultaneously, with every stroke, color change, and action reflected on everyone's screen instantly.
 
-![Project Demo GIF](./)
+![Project Demo GIF](./public/Screenshot%202025-07-20%20000137.png)
+![Project Demo GIF](./public/Screenshot%202025-07-20%20000359.png)
+![Project Demo GIF](./public/WhatsApp%20Image%202025-07-20%20at%2012.17.16%20AM.jpeg)
 
 
 ---
