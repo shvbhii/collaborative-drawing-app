@@ -140,12 +140,23 @@ input[type="color"] {
     border-radius: 12px;
     overflow: hidden;
     box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+   
+    width: 100%; 
+    max-width: 1280px;
 }
 
 canvas {
     display: block;
     background-color: #ffffff;
     cursor: crosshair;
+   
+    width: 100%;
+    height: auto;
+   
+    image-rendering: -moz-crisp-edges;
+    image-rendering: -webkit-crisp-edges;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
 }
 
 #cursors-container {

@@ -36,25 +36,36 @@ let history = [];
 let historyIndex = -1;
 
 
-canvas.width = window.innerWidth * 0.7;
-canvas.height = window.innerHeight * 0.8;
+
+
+const LOGICAL_WIDTH = 1920;
+const LOGICAL_HEIGHT = 1080;
+
+
+canvas.width = LOGICAL_WIDTH;
+canvas.height = LOGICAL_HEIGHT;
+
 
 
 function getCoordinates(event) {
     const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    
+    let clientX, clientY;
+
     if (event.touches && event.touches.length > 0) {
-        
-        return {
-            x: event.touches[0].clientX - rect.left,
-            y: event.touches[0].clientY - rect.top
-        };
+        clientX = event.touches[0].clientX;
+        clientY = event.touches[0].clientY;
     } else {
-        
-        return {
-            x: event.clientX - rect.left,
-            y: event.clientY - rect.top
-        };
+        clientX = event.clientX;
+        clientY = event.clientY;
     }
+
+    return {
+        x: (clientX - rect.left) * scaleX,
+        y: (clientY - rect.top) * scaleY
+    };
 }
 
 
@@ -66,7 +77,6 @@ function startDrawing(event) {
 }
 
 function handleDrawing(event) {
-    
     event.preventDefault();
     if (!isDrawing) return;
     
@@ -114,7 +124,6 @@ function updateUndoRedoButtons() {
     undoButton.disabled = historyIndex <= 0;
     redoButton.disabled = historyIndex >= history.length - 1;
 }
-
 
 
 canvas.addEventListener('mousedown', startDrawing);
