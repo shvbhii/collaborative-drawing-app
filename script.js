@@ -1,4 +1,4 @@
-// --- Initial Setup: Room and Socket Connection ---
+
 const urlParams = new URLSearchParams(window.location.search);
 const roomName = urlParams.get('room');
 
@@ -11,7 +11,7 @@ socket.on('connect', () => {
     socket.emit('join-room', roomName);
 });
 
-// --- Element References ---
+
 const canvas = document.getElementById('drawing-board');
 const ctx = canvas.getContext('2d');
 const colorPicker = document.getElementById('colorPicker');
@@ -26,7 +26,7 @@ const cursorsContainer = document.getElementById('cursors-container');
 const userList = document.getElementById('user-list');
 const userCount = document.getElementById('user-count');
 
-// --- State Variables ---
+
 let isDrawing = false;
 let lastX = 0;
 let lastY = 0;
@@ -35,17 +35,55 @@ const userCursors = {};
 let history = [];
 let historyIndex = -1;
 
-// --- Canvas & Drawing Functions ---
+
 canvas.width = window.innerWidth * 0.7;
 canvas.height = window.innerHeight * 0.8;
 
-function draw(e) {
+
+function getCoordinates(event) {
+    const rect = canvas.getBoundingClientRect();
+    if (event.touches && event.touches.length > 0) {
+        
+        return {
+            x: event.touches[0].clientX - rect.left,
+            y: event.touches[0].clientY - rect.top
+        };
+    } else {
+        
+        return {
+            x: event.clientX - rect.left,
+            y: event.clientY - rect.top
+        };
+    }
+}
+
+
+function startDrawing(event) {
+    isDrawing = true;
+    const coords = getCoordinates(event);
+    lastX = coords.x;
+    lastY = coords.y;
+}
+
+function handleDrawing(event) {
+    
+    event.preventDefault();
     if (!isDrawing) return;
+    
+    const coords = getCoordinates(event);
     const drawColor = isErasing ? '#FFFFFF' : colorPicker.value;
-    const data = { lastX, lastY, newX: e.offsetX, newY: e.offsetY, color: drawColor, size: brushSize.value };
+    const data = { lastX, lastY, newX: coords.x, newY: coords.y, color: drawColor, size: brushSize.value };
+    
     drawOnCanvas(data);
     socket.emit('drawing', data);
-    [lastX, lastY] = [e.offsetX, e.offsetY];
+    
+    lastX = coords.x;
+    lastY = coords.y;
+}
+
+function stopDrawing() {
+    if (isDrawing) saveState();
+    isDrawing = false;
 }
 
 function drawOnCanvas(data) {
@@ -58,7 +96,7 @@ function drawOnCanvas(data) {
     ctx.stroke();
 }
 
-// --- Undo/Redo Logic ---
+
 function saveState() {
     if (historyIndex < history.length - 1) history.splice(historyIndex + 1);
     const canvasData = ctx.getImageData(0, 0, canvas.width, canvas.height);
@@ -77,22 +115,19 @@ function updateUndoRedoButtons() {
     redoButton.disabled = historyIndex >= history.length - 1;
 }
 
-// --- Event Listeners ---
-canvas.addEventListener('mousedown', (e) => {
-    isDrawing = true;
-    [lastX, lastY] = [e.offsetX, e.offsetY];
-});
-canvas.addEventListener('mousemove', (e) => {
-    socket.emit('cursor-move', { x: e.offsetX, y: e.offsetY });
-    draw(e);
-});
-canvas.addEventListener('mouseup', () => {
-    if (isDrawing) saveState();
-    isDrawing = false;
-});
-canvas.addEventListener('mouseout', () => isDrawing = false);
 
-// Tool Listeners
+
+canvas.addEventListener('mousedown', startDrawing);
+canvas.addEventListener('touchstart', startDrawing);
+
+canvas.addEventListener('mousemove', handleDrawing);
+canvas.addEventListener('touchmove', handleDrawing);
+
+canvas.addEventListener('mouseup', stopDrawing);
+canvas.addEventListener('touchend', stopDrawing);
+canvas.addEventListener('mouseout', stopDrawing);
+
+
 eraserButton.addEventListener('click', () => {
     isErasing = true;
     eraserButton.classList.add('active');
@@ -130,7 +165,7 @@ clearButton.addEventListener('click', () => {
 
 saveButton.addEventListener('click', () => {
     const link = document.createElement('a');
-    link.download = `${roomName}-drawing.png`;
+    link.download = `${roomName}-drawing-by-Shubhi.png`;
     const tempCanvas = document.createElement('canvas');
     tempCanvas.width = canvas.width;
     tempCanvas.height = canvas.height;
@@ -138,11 +173,15 @@ saveButton.addEventListener('click', () => {
     tempCtx.fillStyle = '#FFFFFF';
     tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
     tempCtx.drawImage(canvas, 0, 0);
+    tempCtx.font = '14px Poppins';
+    tempCtx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+    tempCtx.textAlign = 'right';
+    tempCtx.fillText('- by Shubhi Sharma -', tempCanvas.width - 15, tempCanvas.height - 15);
     link.href = tempCanvas.toDataURL('image/png');
     link.click();
 });
 
-// --- UI Update Functions ---
+
 function updateBrushPreview() {
     const size = brushSize.value;
     brushPreview.style.width = `${size}px`;
@@ -151,7 +190,7 @@ function updateBrushPreview() {
     brushPreview.style.border = isErasing ? '1px solid #ccc' : 'none';
 }
 
-// --- Socket Event Handlers ---
+
 socket.on('drawing', (data) => drawOnCanvas(data));
 socket.on('clear', () => {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -159,15 +198,7 @@ socket.on('clear', () => {
 });
 
 socket.on('cursor-move', (data) => {
-    if (!userCursors[data.id]) {
-        const cursor = document.createElement('div');
-        cursor.className = 'cursor';
-        cursor.style.backgroundColor = `hsl(${Math.random() * 360}, 90%, 50%)`;
-        cursorsContainer.appendChild(cursor);
-        userCursors[data.id] = cursor;
-    }
-    userCursors[data.id].style.left = `${data.x}px`;
-    userCursors[data.id].style.top = `${data.y}px`;
+    
 });
 
 socket.on('user-disconnected', (id) => {
@@ -189,9 +220,9 @@ socket.on('update-user-list', (users) => {
     });
 });
 
-// --- Initial Page Load Setup ---
+
 window.addEventListener('load', () => {
     colorPicker.classList.add('active');
     updateBrushPreview();
-    saveState(); // Save the initial blank state
+    saveState();
 });
