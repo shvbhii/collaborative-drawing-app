@@ -6,42 +6,57 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
 
-// Object to store information about active users
-const activeUsers = {};
+const activeRooms = {};
 
 app.use(express.static(__dirname));
 
 io.on('connection', (socket) => {
-    console.log('A user connected:', socket.id);
-    // Add new user to our list
-    activeUsers[socket.id] = { id: socket.id };
+    
+    socket.on('join-room', (roomName) => {
+        socket.join(roomName);
+        socket.room = roomName;
 
-    // Emit the updated user list to ALL clients
-    io.emit('update-user-list', Object.values(activeUsers));
+        if (!activeRooms[roomName]) {
+            activeRooms[roomName] = {};
+        }
+
+        activeRooms[roomName][socket.id] = { id: socket.id };
+        console.log(`User ${socket.id} joined room ${roomName}`);
+        
+        io.to(roomName).emit('update-user-list', Object.values(activeRooms[roomName]));
+    });
 
     socket.on('drawing', (data) => {
-        socket.broadcast.emit('drawing', data);
+        if (socket.room) {
+            socket.to(socket.room).emit('drawing', data);
+        }
     });
     
     socket.on('clear', () => {
-        io.emit('clear');
+        if (socket.room) {
+            io.to(socket.room).emit('clear');
+        }
     });
 
     socket.on('cursor-move', (data) => {
-        // Broadcast the cursor data to all other clients, including the user's ID
-        socket.broadcast.emit('cursor-move', { id: socket.id, ...data });
+        if (socket.room) {
+            socket.to(socket.room).emit('cursor-move', { id: socket.id, ...data });
+        }
     });
 
     socket.on('disconnect', () => {
-        console.log('User disconnected:', socket.id);
-        // Remove user from our list
-        delete activeUsers[socket.id];
-
-        // Emit the updated user list to ALL clients
-        io.emit('update-user-list', Object.values(activeUsers));
-        
-        // Also emit the original user-disconnected event for cursor cleanup
-        io.emit('user-disconnected', socket.id);
+        const roomName = socket.room;
+        if (roomName && activeRooms[roomName]) {
+            console.log(`User ${socket.id} disconnected from room ${roomName}`);
+            delete activeRooms[roomName][socket.id];
+            
+            if (Object.keys(activeRooms[roomName]).length === 0) {
+                delete activeRooms[roomName];
+            } else {
+                io.to(roomName).emit('update-user-list', Object.values(activeRooms[roomName]));
+            }
+        }
+        io.to(roomName).emit('user-disconnected', socket.id);
     });
 });
 

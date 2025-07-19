@@ -3,39 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Real-Time Collaborative Drawing Board</title>
+    <title>Join a Drawing Room</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        /* Specific styles for the lobby page */
+        html, body {
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f0f0f0;
+        }
+        .lobby-container {
+            text-align: center;
+            padding: 40px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .lobby-container h1 {
+            margin-top: 0;
+        }
+        .lobby-container input {
+            font-size: 1.2em;
+            padding: 10px;
+            margin-top: 10px;
+            margin-bottom: 20px;
+            width: 300px;
+            text-align: center;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .lobby-container button {
+            font-size: 1.2em;
+            padding: 10px 30px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+        }
+    </style>
 </head>
 <body>
-    <div id="main-content">
-        <div class="drawing-area">
-            <h1>Collaborative Drawing Board</h1>
-            <div class="controls">
-                <label for="colorPicker">Color:</label>
-                <input type="color" id="colorPicker" value="#000000">
-                
-                <label for="brushSize">Brush Size:</label>
-                <input type="range" id="brushSize" min="1" max="50" value="5">
-                <span id="brushPreview"></span> 
-
-                <button id="eraserButton">Eraser</button>
-                <button id="clearButton">Clear Canvas</button>
-                <button id="saveButton">Save</button>
-            </div>
-            <div id="canvas-container">
-                <canvas id="drawing-board"></canvas>
-                <div id="cursors-container"></div>
-            </div>
-        </div>
-
-        <div id="sidebar">
-            <h2>Active Users (<span id="user-count">0</span>)</h2>
-            <ul id="user-list"></ul>
-        </div>
+    <div class="lobby-container">
+        <h1>Collaborative Drawing Rooms</h1>
+        <p>Enter a room name to create or join a session.</p>
+        <form id="join-form">
+            <input type="text" id="room-name" placeholder="e.g., project-alpha" required autocomplete="off">
+            <br>
+            <button type="submit">Join Room</button>
+        </form>
     </div>
-
-    <!-- Scripts at the bottom, as before -->
-    <script src="/socket.io/socket.io.js"></script>
-    <script src="script.js"></script>
+    <script src="lobby.js"></script>
 </body>
 </html>
